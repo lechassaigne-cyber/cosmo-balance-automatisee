@@ -31,6 +31,12 @@ HX711 pour une meilleure stabilité des mesures (variations < 0,2 g).
 Communication via USB Serial vers un reTerminal (Raspberry Pi).  
 Fichiers : `main.cpp`, `platformio.ini`
 
+### V3 — Script reTerminal (Raspberry Pi)
+Script Python tournant sur le reTerminal.
+Reçoit les données Serial du Wio Terminal (format DATA,b1,b2,b3,b4)
+et les enregistre automatiquement dans un fichier CSV horodaté.
+Fichier : `v3_reterminal/receiver.py`
+
 ---
 
 ## Matériel utilisé

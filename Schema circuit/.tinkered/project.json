@@ -1,0 +1,10 @@
+{
+  "id": "20859435-4f57-4a51-9127-7cb1d7785595",
+  "name": "Schema circuit",
+  "path": "Schema circuit",
+  "board": "arduino",
+  "boardId": "arduino-uno",
+  "boardFqbn": "arduino:avr:uno",
+  "createdAt": 1777274862111,
+  "updatedAt": 1777282339229
+}

@@ -1,0 +1,12 @@
+{
+  "board": {
+    "family": "arduino",
+    "id": "arduino-uno",
+    "fqbn": "arduino:avr:uno"
+  },
+  "compilation": {
+    "framework": "arduino",
+    "monitorSpeed": 9600
+  },
+  "ai": {}
+}

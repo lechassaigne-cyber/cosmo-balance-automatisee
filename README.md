@@ -1,58 +1,100 @@
 # Système automatisé de pesée — Cosmo International Fragrances
 
+> ⚠️ Projet en cours de développement — Stage avril–juillet 2026
+
 **Auteur :** Léo Chassaigne  
 **Période :** Avril – Juillet 2026  
 **Entreprise :** Cosmo International Fragrances — Mougins (06)  
-**Formation :** CESI École d'Ingénieurs — Spécialité Sytèmes Électroniques et Électriques Embarqués (S3E) 
+**Formation :** CESI École d'Ingénieurs — Spécialité Systèmes Électroniques et Électriques Embarqués (S3E)
 
 ---
 
 ## Contexte
 
-Ce projet a été développé dans le cadre d'un stage de deuxième année au sein 
-de la division Technology de Cosmo International Fragrances. L'objectif était 
-de concevoir un système automatisé de pesée permettant de suivre l'évaporation 
-de flacons de parfum au fil du temps, en remplacement des relevés manuels 
-effectués par les équipes du laboratoire.
+Projet développé dans le cadre d'un stage de deuxième année au sein de la division Technology de Cosmo International Fragrances. L'objectif est de concevoir un système automatisé de pesée permettant de suivre l'évaporation de flacons de parfum au fil du temps, en remplacement des relevés manuels effectués par les équipes du laboratoire.
 
 ---
 
-## Architecture du projet
+## Historique des versions
 
-### V1 — Python + Mini Unit Scale (I2C)
-Première version du système, développée en Python sur Wio Terminal.  
-Utilise des balances Mini Unit Scale communicantes via un bus I2C (TCA9548A).  
-Fichier : `Balance HX711 mode OVERVIEW & FOCUS 4 balances avec meme horloge.py`
+### V1 — Python / Mini Unit Scale (I2C)
+Première version développée en Python sur Wio Terminal.  
+Utilise des balances Mini Unit Scale communicantes via un bus I2C multiplexé (TCA9548A).  
+Fonctionnelle sur 4 balances simultanées.
 
-### V2 — C++ + Cellules de charge HX711 + reTerminal
-Version finale développée en C++ sous PlatformIO (Framework Arduino).  
-Remplace les Mini Unit Scale par des cellules de charge associées à des modules 
-HX711 pour une meilleure stabilité des mesures (variations < 0,2 g).  
-Communication via USB Serial vers un reTerminal (Raspberry Pi).  
-Fichiers : `main.cpp`, `platformio.ini`
+### V2 — Python / HX711
+Remplacement des Mini Unit Scale par des cellules de charge associées à des modules HX711.  
+Amélioration de la stabilité des mesures.  
+Toujours en Python sur Wio Terminal.
 
-### V3 — Script reTerminal (Raspberry Pi)
-Script Python tournant sur le reTerminal.
-Reçoit les données Serial du Wio Terminal (format DATA,b1,b2,b3,b4)
-et les enregistre automatiquement dans un fichier CSV horodaté.
-Fichier : `v3_reterminal/receiver.py`
+### V3 — C++ / HX711 / reTerminal ← version actuelle
+Réécriture complète du firmware en C++ sous PlatformIO (framework Arduino).  
+Communication BLE Nordic UART Service vers le reTerminal (Raspberry Pi CM4).  
+Réception et enregistrement automatique des données en CSV sur le reTerminal.  
+Dashboard TFT sur le Wio Terminal (mode OVERVIEW / FOCUS).
 
 ---
 
 ## Matériel utilisé
 
-- Wio Terminal (Seeed Studio)
-- Cellules de charge 1 kg
-- Modules amplificateurs HX711
-- reTerminal (Raspberry Pi CM4)
-- Boîtier sur mesure modélisé sous Fusion 360 et imprimé en 3D
+| Composant | Rôle |
+|---|---|
+| Wio Terminal (Seeed Studio) | Microcontrôleur principal, affichage TFT, BLE |
+| reTerminal (Raspberry Pi CM4) | Réception BLE, stockage CSV |
+| Cellules de charge 1 kg | Mesure du poids |
+| Modules HX711 | Amplification signal cellules de charge |
+| TCA9548A | Multiplexeur I2C (jusqu'à 8 canaux) |
+| Boîtier Fusion 360 | Impression 3D sur mesure |
 
 ---
 
-## Branchement (V2)
+## Architecture actuelle (V3)
+Cellules de charge (x4 actuellement)
+
+↓ signal analogique
+
+HX711 (x4)
+
+↓ signal numérique
+
+Wio Terminal (C++ / PlatformIO)
+
+Lecture HX711
+Affichage TFT (OVERVIEW / FOCUS)
+Émission BLE Nordic UART
+
+↓ Bluetooth
+
+reTerminal (Raspberry Pi CM4)
+Réception BLE
+Enregistrement CSV horodaté
+
+
+---
+
+## Fonctionnalités implémentées
+
+- Lecture simultanée de 4 balances HX711
+- Affichage TFT : mode OVERVIEW (4 balances) et mode FOCUS (1 balance détaillée)
+- Tare et calibration individuelle par masse étalon de 100 g
+- Transmission BLE Nordic UART Service vers reTerminal
+- Enregistrement automatique en CSV horodaté sur reTerminal
+
+---
+
+## Fonctionnalités en développement
+
+- [ ] Support de 12 balances simultanées (extension multiplexage HX711)
+- [ ] Montée en charge vers 20+ balances
+- [ ] Interface web de visualisation des données en temps réel
+- [ ] Alertes automatiques en cas de dérive anormale
+
+---
+
+## Branchement V3 (4 balances)
 
 | Signal | Broche Wio Terminal |
-|--------|-------------------|
+|---|---|
 | SCK commun | D0 |
 | DOUT Balance 1 | D1 |
 | DOUT Balance 2 | D2 |
@@ -63,10 +105,17 @@ Fichier : `v3_reterminal/receiver.py`
 
 ---
 
-## Fonctionnalités
+## Structure du repo
+/v1_python_mini_scales/   → V1 Python + Mini Unit Scale
 
-- Mode **OVERVIEW** : affichage simultané des 4 balances
-- Mode **FOCUS** : affichage détaillé d'une balance (tare, calibration)
-- Sauvegarde automatique en fichier CSV toutes les 6 heures
-- Envoi des données via Serial vers le reTerminal
-- Calibration individuelle par masse étalon de 100 g
+/v2_cpp_hx711/            → V2 Python + HX711
+
+/v3_reterminal/           → V3 C++ + HX711 + reTerminal (actuelle)
+
+/docs/                    → Schémas, Gantt, documentation
+
+---
+
+## Statut
+
+🟡 En cours — objectif : 12 balances fonctionnelles puis interface web
